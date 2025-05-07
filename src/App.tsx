@@ -17,6 +17,11 @@ import Handymen from "./pages/Handymen";
 import AddStore from "./pages/AddStore";
 import Cart from "./pages/Cart";
 import NotFound from "./pages/NotFound";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminCategories from "./pages/admin/Categories";
+import AdminRestaurants from "./pages/admin/Restaurants";
+import AdminProducts from "./pages/admin/Products";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +46,13 @@ const App = () => (
               <Route path="cart" element={<Cart />} />
               <Route path="*" element={<NotFound />} />
             </Route>
+            
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/categories" element={<AdminCategories />} />
+            <Route path="/admin/restaurants" element={<AdminRestaurants />} />
+            <Route path="/admin/products" element={<AdminProducts />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

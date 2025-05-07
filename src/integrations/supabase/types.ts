@@ -9,6 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      categories: {
+        Row: {
+          color: string
+          created_at: string | null
+          icon: string
+          id: string
+          link: string
+          name: string
+        }
+        Insert: {
+          color: string
+          created_at?: string | null
+          icon: string
+          id?: string
+          link: string
+          name: string
+        }
+        Update: {
+          color?: string
+          created_at?: string | null
+          icon?: string
+          id?: string
+          link?: string
+          name?: string
+        }
+        Relationships: []
+      }
       hotels: {
         Row: {
           created_at: string
@@ -42,6 +69,109 @@ export type Database = {
           name?: string
           price?: number
           rating?: number
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          image: string
+          name: string
+          price: number
+          restaurant_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image: string
+          name: string
+          price: number
+          restaurant_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image?: string
+          name?: string
+          price?: number
+          restaurant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurant_categories: {
+        Row: {
+          category_name: string
+          created_at: string | null
+          id: string
+          restaurant_id: string | null
+        }
+        Insert: {
+          category_name: string
+          created_at?: string | null
+          id?: string
+          restaurant_id?: string | null
+        }
+        Update: {
+          category_name?: string
+          created_at?: string | null
+          id?: string
+          restaurant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_categories_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurants: {
+        Row: {
+          created_at: string | null
+          delivery_time: string | null
+          description: string | null
+          id: string
+          image: string
+          min_order: number | null
+          name: string
+          rating: number | null
+          reviews: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          delivery_time?: string | null
+          description?: string | null
+          id?: string
+          image: string
+          min_order?: number | null
+          name: string
+          rating?: number | null
+          reviews?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          delivery_time?: string | null
+          description?: string | null
+          id?: string
+          image?: string
+          min_order?: number | null
+          name?: string
+          rating?: number | null
+          reviews?: number | null
         }
         Relationships: []
       }
