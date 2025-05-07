@@ -160,8 +160,8 @@ export default function RestaurantDetails() {
     categories: ["برجر", "وجبات سريعة"],
     rating: 4.5,
     reviews: 230,
-    deliveryTime: "30-45 دقيقة",
-    minOrder: 50,
+    delivery_time: "30-45 دقيقة",
+    min_order: 50,
     description: "استمتع بأشهى برجر في المدينة مع خدمة توصيل سريعة وأطعمة طازجة"
   };
 
@@ -220,12 +220,12 @@ export default function RestaurantDetails() {
         <div className="flex flex-wrap gap-4">
           <div className="bg-gray-100 rounded-lg px-3 py-1">
             <span className="text-sm text-gray-700">
-              وقت التوصيل: {restaurant?.delivery_time || displayRestaurant.deliveryTime}
+              وقت التوصيل: {restaurant?.delivery_time || displayRestaurant.delivery_time}
             </span>
           </div>
           <div className="bg-gray-100 rounded-lg px-3 py-1">
             <span className="text-sm text-gray-700">
-              الحد الأدنى للطلب: {restaurant?.min_order || displayRestaurant.minOrder} ج.م
+              الحد الأدنى للطلب: {restaurant?.min_order || displayRestaurant.min_order} ج.م
             </span>
           </div>
         </div>

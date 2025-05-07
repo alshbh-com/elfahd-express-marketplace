@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AdminAuth from "@/components/admin/AdminAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Restaurant, Building2, ShoppingBag } from "lucide-react";
+import { Utensils, Building2, ShoppingBag } from "lucide-react";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -66,7 +66,7 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-lg font-medium">المطاعم</CardTitle>
-              <Restaurant className="h-5 w-5 text-elfahd-primary" />
+              <Utensils className="h-5 w-5 text-elfahd-primary" />
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-bold">{stats.restaurants}</p>
