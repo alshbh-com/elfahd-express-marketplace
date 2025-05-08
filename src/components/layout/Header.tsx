@@ -21,6 +21,37 @@ export default function Header() {
             <span className="text-2xl font-bold text-elfahd-primary">ELFAHD</span>
           </Link>
 
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex md:items-center md:space-x-4">
+            <Link
+              to="/admin/dashboard"
+              className="flex items-center space-x-2 bg-elfahd-primary text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition-colors"
+            >
+              <Settings size={18} />
+              <span>لوحة التحكم</span>
+            </Link>
+            <Link
+              to="/add-store"
+              className="relative group bg-gradient-to-r from-elfahd-primary to-elfahd-secondary text-white px-4 py-2 rounded-full font-medium transform hover:scale-105 transition-all duration-300 shadow-lg"
+            >
+              <div className="absolute inset-0 bg-shimmer bg-[length:200%_100%] animate-shimmer rounded-full opacity-75"></div>
+              <div className="flex items-center justify-center space-x-2 relative z-10">
+                <Store size={20} />
+                <span>أضف متجرك</span>
+              </div>
+            </Link>
+            <Link to="/cart" className="relative">
+              <Button variant="ghost" size="sm">
+                <ShoppingCart className="h-5 w-5" />
+                {cartItems.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-elfahd-secondary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartItems.length}
+                  </span>
+                )}
+              </Button>
+            </Link>
+          </div>
+
           {/* Mobile menu button */}
           <div className="md:hidden">
             <Button
@@ -54,47 +85,16 @@ export default function Header() {
               </svg>
             </Button>
           </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex md:items-center md:space-x-4">
-            <Link
-              to="/admin/login"
-              className="flex items-center space-x-2 bg-elfahd-primary text-white px-3 py-2 rounded-full font-medium hover:bg-blue-700 transition-colors"
-            >
-              <Settings size={18} />
-              <span>لوحة التحكم</span>
-            </Link>
-            <Link
-              to="/add-store"
-              className="relative group bg-gradient-to-r from-elfahd-primary to-elfahd-secondary text-white px-4 py-2 rounded-full font-medium transform hover:scale-105 transition-all duration-300 shadow-lg animate-pulse"
-            >
-              <div className="absolute inset-0 bg-shimmer bg-[length:200%_100%] animate-shimmer rounded-full opacity-75"></div>
-              <div className="flex items-center justify-center space-x-2 relative z-10">
-                <Store size={20} />
-                <span>أضف متجرك</span>
-              </div>
-            </Link>
-            <Link to="/cart" className="relative">
-              <Button variant="ghost" size="sm">
-                <ShoppingCart className="h-5 w-5" />
-                {cartItems.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-elfahd-secondary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {cartItems.length}
-                  </span>
-                )}
-              </Button>
-            </Link>
-          </div>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden mt-4 space-y-2 pb-3">
             <Link
-              to="/admin/login"
-              className="flex items-center justify-center space-x-2 bg-elfahd-primary text-white px-4 py-2 rounded-full font-medium mb-2"
+              to="/admin/dashboard"
+              className="flex items-center justify-center space-x-2 bg-elfahd-primary text-white px-4 py-2 rounded-md font-medium mb-2"
             >
-              <Settings size={16} />
+              <Settings size={18} />
               <span>لوحة التحكم</span>
             </Link>
             <Link
@@ -103,6 +103,7 @@ export default function Header() {
             >
               <Store size={16} />
               <span>أضف متجرك</span>
+            </div>
             </Link>
             <div className="flex justify-between items-center">
               <Link

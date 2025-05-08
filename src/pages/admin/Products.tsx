@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Pencil, Trash2, Plus } from "lucide-react";
+import ImageUploader from "@/components/admin/ImageUploader";
 
 interface Product {
   id: string;
@@ -117,6 +118,10 @@ export default function AdminProducts() {
 
   const handleRestaurantChange = (value: string) => {
     setFormData(prev => ({ ...prev, restaurant_id: value }));
+  };
+  
+  const handleImageUpload = (url: string) => {
+    setFormData(prev => ({ ...prev, image: url }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -244,13 +249,11 @@ export default function AdminProducts() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">رابط الصورة</label>
-                <Input
-                  name="image"
-                  value={formData.image}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="رابط صورة المنتج"
+                <label className="block text-sm font-medium mb-1">صورة المنتج</label>
+                <ImageUploader 
+                  onImageUrl={handleImageUpload} 
+                  currentImageUrl={formData.image} 
+                  folder="products"
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
