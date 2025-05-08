@@ -97,42 +97,42 @@ const Index = () => {
     {
       id: "1",
       title: "مطاعم",
-      icon: "https://via.placeholder.com/64/FF6600/FFFFFF?text=🍔",
+      icon: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?q=80&w=1980&auto=format&fit=crop",
       link: "/restaurants",
       color: "bg-gradient-to-br from-orange-500 to-orange-600",
     },
     {
       id: "2",
       title: "صيدليات",
-      icon: "https://via.placeholder.com/64/4CAF50/FFFFFF?text=💊",
+      icon: "https://images.unsplash.com/photo-1576602976047-174e57a47881?q=80&w=1769&auto=format&fit=crop",
       link: "/pharmacies",
       color: "bg-gradient-to-br from-green-500 to-green-600",
     },
     {
       id: "3",
       title: "سوبر ماركت",
-      icon: "https://via.placeholder.com/64/2196F3/FFFFFF?text=🛒",
+      icon: "https://images.unsplash.com/photo-1584680226833-322d1287e403?q=80&w=1770&auto=format&fit=crop",
       link: "/supermarkets",
       color: "bg-gradient-to-br from-blue-500 to-blue-600",
     },
     {
       id: "4",
       title: "توظيف",
-      icon: "https://via.placeholder.com/64/9C27B0/FFFFFF?text=👔",
+      icon: "https://images.unsplash.com/photo-1508385082359-f38ae991e8f2?q=80&w=1974&auto=format&fit=crop",
       link: "/jobs",
       color: "bg-gradient-to-br from-purple-500 to-purple-600",
     },
     {
       id: "5",
       title: "دكتور",
-      icon: "https://via.placeholder.com/64/F44336/FFFFFF?text=👨‍⚕️",
+      icon: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=1580&auto=format&fit=crop",
       link: "/doctors",
       color: "bg-gradient-to-br from-red-500 to-red-600",
     },
     {
       id: "6",
       title: "صنيعية",
-      icon: "https://via.placeholder.com/64/607D8B/FFFFFF?text=🔧",
+      icon: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1770&auto=format&fit=crop",
       link: "/handymen",
       color: "bg-gradient-to-br from-gray-500 to-gray-600",
     }
@@ -145,7 +145,7 @@ const Index = () => {
       {/* Hero section */}
       <div className="relative mb-8 rounded-xl overflow-hidden shadow-lg">
         <img
-          src="https://via.placeholder.com/1200x400/0066CC/FFFFFF?text=ELFAHD+Express"
+          src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1770&auto=format&fit=crop"
           alt="ELFAHD Express"
           className="w-full h-52 object-cover"
         />
@@ -249,7 +249,7 @@ const Index = () => {
               <Link key={i} to="/restaurants" className="block">
                 <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                   <img
-                    src={`https://via.placeholder.com/400x200/FF6600/FFFFFF?text=مطعم+${i+1}`}
+                    src={`https://images.unsplash.com/${i === 0 ? 'photo-1568901346375-23c9450c58cd' : i === 1 ? 'photo-1555939594-58d7cb561ad1' : 'photo-1513104890138-7c749659a591'}?q=80&w=1770&auto=format&fit=crop`}
                     alt={`مطعم ${i+1}`}
                     className="w-full h-40 object-cover"
                   />

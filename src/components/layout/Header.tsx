@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Store, Phone } from "lucide-react";
+import { ShoppingCart, Store, Phone, Settings } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 
 export default function Header() {
@@ -58,6 +58,13 @@ export default function Header() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:space-x-4">
             <Link
+              to="/admin/login"
+              className="flex items-center space-x-2 bg-elfahd-primary text-white px-3 py-2 rounded-full font-medium hover:bg-blue-700 transition-colors"
+            >
+              <Settings size={18} />
+              <span>لوحة التحكم</span>
+            </Link>
+            <Link
               to="/add-store"
               className="relative group bg-gradient-to-r from-elfahd-primary to-elfahd-secondary text-white px-4 py-2 rounded-full font-medium transform hover:scale-105 transition-all duration-300 shadow-lg animate-pulse"
             >
@@ -83,6 +90,13 @@ export default function Header() {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden mt-4 space-y-2 pb-3">
+            <Link
+              to="/admin/login"
+              className="flex items-center justify-center space-x-2 bg-elfahd-primary text-white px-4 py-2 rounded-full font-medium mb-2"
+            >
+              <Settings size={16} />
+              <span>لوحة التحكم</span>
+            </Link>
             <Link
               to="/add-store"
               className="flex items-center justify-center space-x-2 bg-gradient-to-r from-elfahd-primary to-elfahd-secondary text-white px-4 py-2 rounded-full font-medium"
