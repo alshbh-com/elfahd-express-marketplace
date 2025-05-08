@@ -103,7 +103,6 @@ export default function Header() {
             >
               <Store size={16} />
               <span>أضف متجرك</span>
-            </div>
             </Link>
             <div className="flex justify-between items-center">
               <Link
