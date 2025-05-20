@@ -16,14 +16,17 @@ import {
   DialogFooter
 } from "@/components/ui/dialog";
 
+// Define the Doctor type to match our database schema
 interface Doctor {
   id: string;
   name: string;
   specialty: string;
-  description: string | null;
+  education: string | null;
+  rating: number | null;
+  reviews: number | null;
   price: number;
   image: string;
-  phone: string | null;
+  created_at?: string | null;
 }
 
 export default function AdminDoctors() {
@@ -31,13 +34,14 @@ export default function AdminDoctors() {
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Omit<Doctor, 'id' | 'created_at'>>({
     name: "",
     specialty: "",
-    description: "",
+    education: "",
+    rating: 0,
+    reviews: 0,
     price: 0,
-    image: "",
-    phone: "",
+    image: ""
   });
 
   useEffect(() => {
@@ -47,33 +51,16 @@ export default function AdminDoctors() {
   async function fetchDoctors() {
     setLoading(true);
     try {
-      // Check if table exists
-      const { error: checkError } = await supabase
-        .from("doctors")
-        .select("id", { count: "exact" })
-        .limit(1);
-      
-      if (checkError) {
-        // If table doesn't exist, show a message and return
-        if (checkError.code === "42P01") { // PostgreSQL code for undefined_table
-          console.log("Doctors table doesn't exist yet");
-          setDoctors([]);
-          setLoading(false);
-          return;
-        }
-        throw checkError;
-      }
-
       const { data, error } = await supabase
         .from("doctors")
         .select("*")
-        .order("name");
+        .order("name") as { data: Doctor[] | null, error: any };
 
       if (error) throw error;
       setDoctors(data || []);
     } catch (error) {
       console.error("Error fetching doctors:", error);
-      toast.error("حدث خطأ أثناء جلب البيانات");
+      toast.error("حدث خطأ أثناء جلب بيانات الأطباء");
     } finally {
       setLoading(false);
     }
@@ -102,7 +89,7 @@ export default function AdminDoctors() {
         const { error } = await supabase
           .from("doctors")
           .update(formData)
-          .eq("id", editingId);
+          .eq("id", editingId) as { error: any };
 
         if (error) throw error;
         toast.success("تم تحديث بيانات الطبيب بنجاح");
@@ -110,7 +97,7 @@ export default function AdminDoctors() {
         // Create new doctor
         const { error } = await supabase
           .from("doctors")
-          .insert([formData]);
+          .insert([formData]) as { error: any };
 
         if (error) throw error;
         toast.success("تم إضافة الطبيب بنجاح");
@@ -120,10 +107,11 @@ export default function AdminDoctors() {
       setFormData({
         name: "",
         specialty: "",
-        description: "",
+        education: "",
+        rating: 0,
+        reviews: 0,
         price: 0,
-        image: "",
-        phone: "",
+        image: ""
       });
       setFormOpen(false);
       setEditingId(null);
@@ -139,10 +127,11 @@ export default function AdminDoctors() {
     setFormData({
       name: doctor.name,
       specialty: doctor.specialty,
-      description: doctor.description || "",
+      education: doctor.education || "",
+      rating: doctor.rating || 0,
+      reviews: doctor.reviews || 0,
       price: doctor.price,
-      image: doctor.image,
-      phone: doctor.phone || "",
+      image: doctor.image
     });
     setFormOpen(true);
   };
@@ -154,7 +143,7 @@ export default function AdminDoctors() {
       const { error } = await supabase
         .from("doctors")
         .delete()
-        .eq("id", id);
+        .eq("id", id) as { error: any };
 
       if (error) throw error;
       toast.success("تم حذف الطبيب بنجاح");
@@ -176,10 +165,11 @@ export default function AdminDoctors() {
               setFormData({
                 name: "",
                 specialty: "",
-                description: "",
+                education: "",
+                rating: 0,
+                reviews: 0,
                 price: 0,
-                image: "",
-                phone: "",
+                image: ""
               });
               setFormOpen(true);
             }}
@@ -198,7 +188,7 @@ export default function AdminDoctors() {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">اسم الطبيب</label>
+                <label className="block text-sm font-medium mb-1">الاسم</label>
                 <Input
                   name="name"
                   value={formData.name}
@@ -215,29 +205,46 @@ export default function AdminDoctors() {
                   value={formData.specialty}
                   onChange={handleInputChange}
                   required
-                  placeholder="التخصص"
+                  placeholder="التخصص (باطنة، أطفال، الخ)"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-1">رقم الهاتف</label>
+                <label className="block text-sm font-medium mb-1">المؤهل العلمي</label>
                 <Input
-                  name="phone"
-                  value={formData.phone}
+                  name="education"
+                  value={formData.education || ""}
                   onChange={handleInputChange}
-                  placeholder="رقم الهاتف"
+                  placeholder="المؤهل العلمي أو الدرجة العلمية"
                 />
               </div>
               
-              <div>
-                <label className="block text-sm font-medium mb-1">الوصف</label>
-                <Textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  placeholder="وصف الخدمات المقدمة"
-                  rows={3}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">التقييم</label>
+                  <Input
+                    type="number"
+                    name="rating"
+                    value={formData.rating || 0}
+                    onChange={handleNumberInputChange}
+                    min={0}
+                    max={5}
+                    step={0.1}
+                    placeholder="من 0 إلى 5"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1">عدد التقييمات</label>
+                  <Input
+                    type="number"
+                    name="reviews"
+                    value={formData.reviews || 0}
+                    onChange={handleNumberInputChange}
+                    min={0}
+                    placeholder="عدد التقييمات"
+                  />
+                </div>
               </div>
               
               <div>
@@ -259,6 +266,7 @@ export default function AdminDoctors() {
                   min={0}
                   step={0.01}
                   required
+                  placeholder="سعر الكشف بالجنيه"
                 />
               </div>
               
@@ -285,10 +293,11 @@ export default function AdminDoctors() {
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الطبيب</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الاسم</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الصورة</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">التخصص</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">رقم الهاتف</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المؤهل</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">التقييم</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">سعر الكشف</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
                   </tr>
@@ -297,12 +306,7 @@ export default function AdminDoctors() {
                   {doctors.map((doctor) => (
                     <tr key={doctor.id}>
                       <td className="px-6 py-4">
-                        <div>
-                          <div className="font-medium">{doctor.name}</div>
-                          {doctor.description && (
-                            <div className="text-sm text-gray-500 truncate max-w-xs">{doctor.description}</div>
-                          )}
-                        </div>
+                        <div className="font-medium">{doctor.name}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <img src={doctor.image} alt={doctor.name} className="w-16 h-16 rounded-full object-cover" />
@@ -311,7 +315,14 @@ export default function AdminDoctors() {
                         {doctor.specialty}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {doctor.phone || "-"}
+                        {doctor.education || "-"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <span className="text-yellow-500 mr-1">★</span>
+                          <span>{doctor.rating || 0}</span>
+                          <span className="text-gray-500 text-xs ml-1">({doctor.reviews || 0})</span>
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {doctor.price} ج.م

@@ -23,6 +23,8 @@ import AdminCategories from "./pages/admin/Categories";
 import AdminRestaurants from "./pages/admin/Restaurants";
 import AdminProducts from "./pages/admin/Products";
 import AdminPromos from "./pages/admin/Promos";
+import AdminCraftsmen from "./pages/admin/Craftsmen";
+import AdminDoctors from "./pages/admin/Doctors";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +57,8 @@ const App = () => (
             <Route path="/admin/restaurants" element={<AdminRestaurants />} />
             <Route path="/admin/products" element={<AdminProducts />} />
             <Route path="/admin/promos" element={<AdminPromos />} />
+            <Route path="/admin/craftsmen" element={<AdminCraftsmen />} />
+            <Route path="/admin/doctors" element={<AdminDoctors />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

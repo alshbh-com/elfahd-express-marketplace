@@ -16,6 +16,7 @@ import {
   DialogFooter
 } from "@/components/ui/dialog";
 
+// Define the Craftsman type to match our database schema
 interface Craftsman {
   id: string;
   name: string;
@@ -25,6 +26,7 @@ interface Craftsman {
   image: string;
   phone: string | null;
   area: string | null;
+  created_at?: string | null;
 }
 
 export default function AdminCraftsmen() {
@@ -32,7 +34,7 @@ export default function AdminCraftsmen() {
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Omit<Craftsman, 'id' | 'created_at'>>({
     name: "",
     profession: "",
     description: "",
@@ -49,27 +51,10 @@ export default function AdminCraftsmen() {
   async function fetchCraftsmen() {
     setLoading(true);
     try {
-      // Check if table exists
-      const { error: checkError } = await supabase
-        .from("craftsmen")
-        .select("id", { count: "exact" })
-        .limit(1);
-      
-      if (checkError) {
-        // If table doesn't exist, show a message and return
-        if (checkError.code === "42P01") { // PostgreSQL code for undefined_table
-          console.log("Craftsmen table doesn't exist yet");
-          setCraftsmen([]);
-          setLoading(false);
-          return;
-        }
-        throw checkError;
-      }
-
       const { data, error } = await supabase
         .from("craftsmen")
         .select("*")
-        .order("name");
+        .order("name") as { data: Craftsman[] | null, error: any };
 
       if (error) throw error;
       setCraftsmen(data || []);
@@ -104,7 +89,7 @@ export default function AdminCraftsmen() {
         const { error } = await supabase
           .from("craftsmen")
           .update(formData)
-          .eq("id", editingId);
+          .eq("id", editingId) as { error: any };
 
         if (error) throw error;
         toast.success("تم تحديث بيانات الصنايعي بنجاح");
@@ -112,7 +97,7 @@ export default function AdminCraftsmen() {
         // Create new craftsman
         const { error } = await supabase
           .from("craftsmen")
-          .insert([formData]);
+          .insert([formData]) as { error: any };
 
         if (error) throw error;
         toast.success("تم إضافة الصنايعي بنجاح");
@@ -158,7 +143,7 @@ export default function AdminCraftsmen() {
       const { error } = await supabase
         .from("craftsmen")
         .delete()
-        .eq("id", id);
+        .eq("id", id) as { error: any };
 
       if (error) throw error;
       toast.success("تم حذف الصنايعي بنجاح");
@@ -228,7 +213,7 @@ export default function AdminCraftsmen() {
                 <label className="block text-sm font-medium mb-1">المنطقة</label>
                 <Input
                   name="area"
-                  value={formData.area}
+                  value={formData.area || ""}
                   onChange={handleInputChange}
                   placeholder="المنطقة التي يخدمها"
                 />
@@ -238,7 +223,7 @@ export default function AdminCraftsmen() {
                 <label className="block text-sm font-medium mb-1">رقم الهاتف</label>
                 <Input
                   name="phone"
-                  value={formData.phone}
+                  value={formData.phone || ""}
                   onChange={handleInputChange}
                   placeholder="رقم الهاتف"
                 />
@@ -248,7 +233,7 @@ export default function AdminCraftsmen() {
                 <label className="block text-sm font-medium mb-1">الوصف</label>
                 <Textarea
                   name="description"
-                  value={formData.description}
+                  value={formData.description || ""}
                   onChange={handleInputChange}
                   placeholder="وصف الخدمات المقدمة"
                   rows={3}

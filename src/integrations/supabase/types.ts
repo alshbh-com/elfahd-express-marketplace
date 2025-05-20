@@ -36,6 +36,78 @@ export type Database = {
         }
         Relationships: []
       }
+      craftsmen: {
+        Row: {
+          area: string | null
+          created_at: string | null
+          description: string | null
+          hourly_rate: number
+          id: string
+          image: string
+          name: string
+          phone: string | null
+          profession: string
+        }
+        Insert: {
+          area?: string | null
+          created_at?: string | null
+          description?: string | null
+          hourly_rate: number
+          id?: string
+          image: string
+          name: string
+          phone?: string | null
+          profession: string
+        }
+        Update: {
+          area?: string | null
+          created_at?: string | null
+          description?: string | null
+          hourly_rate?: number
+          id?: string
+          image?: string
+          name?: string
+          phone?: string | null
+          profession?: string
+        }
+        Relationships: []
+      }
+      doctors: {
+        Row: {
+          created_at: string | null
+          education: string | null
+          id: string
+          image: string
+          name: string
+          price: number
+          rating: number | null
+          reviews: number | null
+          specialty: string
+        }
+        Insert: {
+          created_at?: string | null
+          education?: string | null
+          id?: string
+          image: string
+          name: string
+          price: number
+          rating?: number | null
+          reviews?: number | null
+          specialty: string
+        }
+        Update: {
+          created_at?: string | null
+          education?: string | null
+          id?: string
+          image?: string
+          name?: string
+          price?: number
+          rating?: number | null
+          reviews?: number | null
+          specialty?: string
+        }
+        Relationships: []
+      }
       hotels: {
         Row: {
           created_at: string
