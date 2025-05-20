@@ -43,19 +43,21 @@ export default function ImageUploader({ onImageUrl, currentImageUrl, folder = "p
       const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
       const filePath = `${folder}/${fileName}`;
 
-      // Upload directly using URL for now (since we don't have Supabase storage bucket set up yet)
-      // In production, you'd use supabase storage
+      // Upload to Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('images')
+        .upload(filePath, file);
       
-      // Create URL from the file
-      const objectUrl = URL.createObjectURL(file);
+      if (error) {
+        throw error;
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath);
       
-      // For now, we'll just use the preview URL
-      // In a real implementation with supabase storage configured, you would do:
-      // const { data, error } = await supabase.storage.from('bucket-name').upload(filePath, file);
-      // if (error) throw error;
-      // const { data: { publicUrl } } = supabase.storage.from('bucket-name').getPublicUrl(filePath);
-      
-      onImageUrl(objectUrl); // In a real implementation, this would be the publicUrl from supabase
+      onImageUrl(publicUrl);
       toast.success("تم رفع الصورة بنجاح");
     } catch (error) {
       console.error("Error uploading file:", error);

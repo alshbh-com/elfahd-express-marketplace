@@ -22,6 +22,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import AdminCategories from "./pages/admin/Categories";
 import AdminRestaurants from "./pages/admin/Restaurants";
 import AdminProducts from "./pages/admin/Products";
+import AdminPromos from "./pages/admin/Promos";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/admin/categories" element={<AdminCategories />} />
             <Route path="/admin/restaurants" element={<AdminRestaurants />} />
             <Route path="/admin/products" element={<AdminProducts />} />
+            <Route path="/admin/promos" element={<AdminPromos />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
