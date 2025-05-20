@@ -3,28 +3,13 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import AdminAuth from "@/components/admin/AdminAuth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Pencil, Trash2, Plus, X } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { 
-  Sheet,
-  SheetContent, 
-  SheetHeader,
-  SheetTitle,
-  SheetFooter,
-} from "@/components/ui/sheet";
+import { Pencil, Trash2, Plus } from "lucide-react";
 import ImageUploader from "@/components/admin/ImageUploader";
+import { Label } from "@/components/ui/label";
 
 interface Promo {
   id: string;
@@ -35,90 +20,103 @@ interface Promo {
   created_at: string;
 }
 
-export default function Promos() {
+export default function AdminPromos() {
   const [promos, setPromos] = useState<Promo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [currentPromo, setCurrentPromo] = useState<Partial<Promo> | null>(null);
-  const [imageUrl, setImageUrl] = useState("");
-  
-  const fetchPromos = async () => {
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    image: "",
+    active: true
+  });
+
+  useEffect(() => {
+    fetchPromos();
+  }, []);
+
+  async function fetchPromos() {
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from("promos")
         .select("*")
         .order("created_at", { ascending: false });
-        
+
       if (error) throw error;
-      
       setPromos(data || []);
     } catch (error) {
       console.error("Error fetching promos:", error);
-      toast.error("حدث خطأ أثناء تحميل العروض");
+      toast.error("حدث خطأ أثناء جلب البيانات");
     } finally {
       setLoading(false);
     }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
-  
-  useEffect(() => {
-    fetchPromos();
-  }, []);
-  
-  const handleAddEditClick = (promo?: Promo) => {
-    if (promo) {
-      setCurrentPromo(promo);
-      setImageUrl(promo.image);
-    } else {
-      setCurrentPromo({ active: true });
-      setImageUrl("");
-    }
-    setIsSheetOpen(true);
+
+  const handleImageUrl = (url: string) => {
+    setFormData(prev => ({ ...prev, image: url }));
   };
-  
-  const handleSave = async () => {
-    if (!currentPromo?.title) {
-      toast.error("الرجاء إدخال عنوان العرض");
-      return;
-    }
-    
-    if (!imageUrl) {
-      toast.error("الرجاء إضافة صورة للعرض");
-      return;
-    }
+
+  const handleSwitchChange = (checked: boolean) => {
+    setFormData(prev => ({ ...prev, active: checked }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
     try {
-      const isUpdate = !!currentPromo.id;
-      
-      const promoData = {
-        ...currentPromo,
-        image: imageUrl
-      };
-      
-      let response;
-      
-      if (isUpdate) {
-        response = await supabase
+      if (editingId) {
+        // Update existing promo
+        const { error } = await supabase
           .from("promos")
-          .update(promoData)
-          .eq("id", currentPromo.id);
+          .update(formData)
+          .eq("id", editingId);
+
+        if (error) throw error;
+        toast.success("تم تحديث العرض بنجاح");
       } else {
-        response = await supabase
+        // Create new promo
+        const { error } = await supabase
           .from("promos")
-          .insert([promoData]);
+          .insert([formData]);
+
+        if (error) throw error;
+        toast.success("تم إضافة العرض بنجاح");
       }
       
-      if (response.error) throw response.error;
-      
-      toast.success(isUpdate ? "تم تحديث العرض بنجاح" : "تم إضافة العرض بنجاح");
-      setIsSheetOpen(false);
+      // Reset form and refresh data
+      setFormData({
+        title: "",
+        description: "",
+        image: "",
+        active: true
+      });
+      setFormOpen(false);
+      setEditingId(null);
       fetchPromos();
     } catch (error) {
       console.error("Error saving promo:", error);
-      toast.error("حدث خطأ أثناء حفظ العرض");
+      toast.error("حدث خطأ أثناء حفظ البيانات");
     }
   };
-  
+
+  const handleEdit = (promo: Promo) => {
+    setEditingId(promo.id);
+    setFormData({
+      title: promo.title,
+      description: promo.description || "",
+      image: promo.image,
+      active: promo.active
+    });
+    setFormOpen(true);
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm("هل أنت متأكد من حذف هذا العرض؟")) return;
     
@@ -127,9 +125,8 @@ export default function Promos() {
         .from("promos")
         .delete()
         .eq("id", id);
-        
+
       if (error) throw error;
-      
       toast.success("تم حذف العرض بنجاح");
       fetchPromos();
     } catch (error) {
@@ -137,204 +134,172 @@ export default function Promos() {
       toast.error("حدث خطأ أثناء حذف العرض");
     }
   };
-  
-  const handleToggleActive = async (promo: Promo) => {
+
+  const toggleActive = async (id: string, currentState: boolean) => {
     try {
       const { error } = await supabase
         .from("promos")
-        .update({ active: !promo.active })
-        .eq("id", promo.id);
-        
+        .update({ active: !currentState })
+        .eq("id", id);
+
       if (error) throw error;
-      
-      toast.success(`تم ${promo.active ? "إلغاء تفعيل" : "تفعيل"} العرض بنجاح`);
+      toast.success("تم تحديث حالة العرض");
       fetchPromos();
     } catch (error) {
-      console.error("Error toggling promo status:", error);
-      toast.error("حدث خطأ أثناء تغيير حالة العرض");
+      console.error("Error updating promo status:", error);
+      toast.error("حدث خطأ أثناء تحديث حالة العرض");
     }
   };
 
   return (
     <AdminAuth>
-      <div className="container mx-auto py-8 px-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-xl">إدارة العروض</CardTitle>
-            <Button 
-              onClick={() => handleAddEditClick()}
-              className="bg-elfahd-primary hover:bg-blue-700"
-            >
-              <Plus className="ml-2 h-4 w-4" /> إضافة عرض جديد
-            </Button>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">إدارة العروض</h1>
+          <Button 
+            onClick={() => {
+              setEditingId(null);
+              setFormData({
+                title: "",
+                description: "",
+                image: "",
+                active: true
+              });
+              setFormOpen(!formOpen);
+            }}
+            className="bg-elfahd-primary hover:bg-blue-600"
+          >
+            <Plus size={16} className="ml-1" />
+            {formOpen ? "إلغاء" : "إضافة عرض جديد"}
+          </Button>
+        </div>
+
+        {/* Add/Edit Form */}
+        {formOpen && (
+          <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+            <h2 className="text-xl font-bold mb-4">{editingId ? "تعديل العرض" : "إضافة عرض جديد"}</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">عنوان العرض</label>
+                <Input
+                  name="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="عنوان العرض"
+                />
               </div>
-            ) : promos.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                لا توجد عروض حتى الآن. قم بإضافة عرض جديد.
+              <div>
+                <label className="block text-sm font-medium mb-1">الوصف</label>
+                <Textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  placeholder="وصف العرض"
+                  rows={3}
+                />
               </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>الصورة</TableHead>
-                    <TableHead>العنوان</TableHead>
-                    <TableHead>الوصف</TableHead>
-                    <TableHead>الحالة</TableHead>
-                    <TableHead>الإجراءات</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <div>
+                <label className="block text-sm font-medium mb-1">صورة العرض</label>
+                <ImageUploader 
+                  onImageUrl={handleImageUrl}
+                  currentImageUrl={formData.image}
+                  folder="promos"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="active-switch"
+                  checked={formData.active}
+                  onCheckedChange={handleSwitchChange}
+                />
+                <Label htmlFor="active-switch" className="mr-2">العرض نشط</Label>
+              </div>
+              <div className="flex justify-end">
+                <Button type="submit" className="bg-green-600 hover:bg-green-700">
+                  {editingId ? "حفظ التغييرات" : "إضافة العرض"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Promos List */}
+        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+          {loading ? (
+            <div className="p-8 text-center">جاري التحميل...</div>
+          ) : promos.length === 0 ? (
+            <div className="p-8 text-center">لا توجد عروض مضافة حتى الآن</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">العرض</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الصورة</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
                   {promos.map((promo) => (
-                    <TableRow key={promo.id}>
-                      <TableCell>
-                        <img 
-                          src={promo.image} 
-                          alt={promo.title} 
-                          className="h-12 w-20 object-cover rounded"
-                        />
-                      </TableCell>
-                      <TableCell>{promo.title}</TableCell>
-                      <TableCell>
-                        {promo.description ? (
-                          promo.description.length > 50 
-                            ? `${promo.description.substring(0, 50)}...` 
-                            : promo.description
-                        ) : (
-                          "-"
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={`px-2 py-1 text-xs rounded-full ${
-                            promo.active
-                              ? "bg-green-100 text-green-800"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {promo.active ? "نشط" : "غير نشط"}
+                    <tr key={promo.id}>
+                      <td className="px-6 py-4">
+                        <div>
+                          <div className="font-medium">{promo.title}</div>
+                          {promo.description && (
+                            <div className="text-sm text-gray-500 truncate max-w-xs">{promo.description}</div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <img src={promo.image} alt={promo.title} className="w-16 h-10 rounded object-cover" />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          promo.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {promo.active ? 'نشط' : 'غير نشط'}
                         </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2 items-center">
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex space-x-2">
                           <Button
-                            variant="outline"
                             size="sm"
-                            onClick={() => handleToggleActive(promo)}
+                            variant="outline"
+                            onClick={() => handleEdit(promo)}
+                            className="ml-2"
                           >
-                            {promo.active ? "إلغاء التفعيل" : "تفعيل"}
+                            <Pencil size={16} />
                           </Button>
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleAddEditClick(promo)}
+                            size="sm"
+                            variant={promo.active ? "outline" : "default"}
+                            className={promo.active 
+                              ? "text-amber-600 border-amber-600 hover:bg-amber-50"
+                              : "bg-green-600 hover:bg-green-700 text-white"}
+                            onClick={() => toggleActive(promo.id, promo.active)}
                           >
-                            <Pencil className="h-4 w-4" />
+                            {promo.active ? 'تعطيل' : 'تفعيل'}
                           </Button>
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 border-red-600 hover:bg-red-50"
                             onClick={() => handleDelete(promo.id)}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 size={16} />
                           </Button>
                         </div>
-                      </TableCell>
-                    </TableRow>
+                      </td>
+                    </tr>
                   ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
-
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="w-full md:max-w-md overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>
-              {currentPromo?.id ? "تعديل عرض" : "إضافة عرض جديد"}
-            </SheetTitle>
-          </SheetHeader>
-          <div className="py-6 space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="title">عنوان العرض</Label>
-              <Input
-                id="title"
-                value={currentPromo?.title || ""}
-                onChange={(e) =>
-                  setCurrentPromo({
-                    ...currentPromo,
-                    title: e.target.value,
-                  })
-                }
-                placeholder="أدخل عنوان العرض"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="description">وصف العرض</Label>
-              <Textarea
-                id="description"
-                value={currentPromo?.description || ""}
-                onChange={(e) =>
-                  setCurrentPromo({
-                    ...currentPromo,
-                    description: e.target.value,
-                  })
-                }
-                placeholder="أدخل وصف العرض"
-                rows={3}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label>صورة العرض</Label>
-              <ImageUploader
-                onImageUrl={setImageUrl}
-                currentImageUrl={imageUrl}
-                folder="promos"
-              />
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Label htmlFor="active" className="flex-grow">حالة العرض</Label>
-              <input
-                id="active"
-                type="checkbox"
-                checked={currentPromo?.active ?? true}
-                onChange={(e) =>
-                  setCurrentPromo({
-                    ...currentPromo,
-                    active: e.target.checked,
-                  })
-                }
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <span className="text-sm">
-                {currentPromo?.active ?? true ? "نشط" : "غير نشط"}
-              </span>
-            </div>
-          </div>
-          
-          <SheetFooter className="flex justify-between">
-            <Button variant="outline" onClick={() => setIsSheetOpen(false)}>
-              إلغاء
-            </Button>
-            <Button 
-              onClick={handleSave}
-              className="bg-elfahd-primary hover:bg-blue-700"
-            >
-              حفظ
-            </Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
     </AdminAuth>
   );
 }

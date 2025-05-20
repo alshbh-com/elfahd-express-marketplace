@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Pencil, Trash2, Plus } from "lucide-react";
+import ImageUploader from "@/components/admin/ImageUploader";
 
 interface Restaurant {
   id: string;
@@ -100,6 +101,10 @@ export default function AdminRestaurants() {
   const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: parseFloat(value) || 0 }));
+  };
+
+  const handleImageUrl = (url: string) => {
+    setFormData(prev => ({ ...prev, image: url }));
   };
 
   const toggleCategory = (categoryName: string) => {
@@ -266,13 +271,11 @@ export default function AdminRestaurants() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">رابط الصورة</label>
-                <Input
-                  name="image"
-                  value={formData.image}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="رابط صورة المطعم"
+                <label className="block text-sm font-medium mb-1">صورة المطعم</label>
+                <ImageUploader 
+                  onImageUrl={handleImageUrl}
+                  currentImageUrl={formData.image}
+                  folder="restaurants"
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

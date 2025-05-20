@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Pencil, Trash2, Plus } from "lucide-react";
+import ImageUploader from "@/components/admin/ImageUploader";
 
 interface Category {
   id: string;
@@ -62,6 +63,10 @@ export default function AdminCategories() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageUrl = (url: string) => {
+    setFormData(prev => ({ ...prev, icon: url }));
   };
 
   const handleColorSelect = (color: string) => {
@@ -175,13 +180,11 @@ export default function AdminCategories() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">رابط الصورة</label>
-                <Input
-                  name="icon"
-                  value={formData.icon}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="رابط صورة القسم"
+                <label className="block text-sm font-medium mb-1">صورة القسم</label>
+                <ImageUploader 
+                  onImageUrl={handleImageUrl}
+                  currentImageUrl={formData.icon}
+                  folder="categories"
                 />
               </div>
               <div>
