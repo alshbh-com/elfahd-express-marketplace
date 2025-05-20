@@ -180,7 +180,7 @@ export default function AdminCategories() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">صورة القسم</label>
+                <label className="block text-sm font-medium mb-1">أيقونة القسم</label>
                 <ImageUploader 
                   onImageUrl={handleImageUrl}
                   currentImageUrl={formData.icon}
